@@ -14,21 +14,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "OBJ_782"
-               BuildableName = "BoringSSL.framework"
-               BlueprintName = "BoringSSL"
-               ReferencedContainer = "container:SwiftGRPC.xcodeproj">
-            </BuildableReference>
-         </BuildActionEntry>
-         <BuildActionEntry
-            buildForTesting = "YES"
-            buildForRunning = "YES"
-            buildForProfiling = "YES"
-            buildForArchiving = "YES"
-            buildForAnalyzing = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "OBJ_1086"
+               BlueprintIdentifier = "OBJ_783"
                BuildableName = "CgRPC.framework"
                BlueprintName = "CgRPC"
                ReferencedContainer = "container:SwiftGRPC.xcodeproj">
@@ -42,7 +28,21 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "OBJ_1366"
+               BlueprintIdentifier = "OBJ_1063"
+               BuildableName = "BoringSSL.framework"
+               BlueprintName = "BoringSSL"
+               ReferencedContainer = "container:SwiftGRPC.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "OBJ_1367"
                BuildableName = "gRPC.framework"
                BlueprintName = "gRPC"
                ReferencedContainer = "container:SwiftGRPC.xcodeproj">
@@ -60,7 +60,7 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "OBJ_1388"
+               BlueprintIdentifier = "OBJ_1389"
                BuildableName = "gRPCTests.xctest"
                BlueprintName = "gRPCTests"
                ReferencedContainer = "container:SwiftGRPC.xcodeproj">
@@ -83,9 +83,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "OBJ_782"
-            BuildableName = "BoringSSL.framework"
-            BlueprintName = "BoringSSL"
+            BlueprintIdentifier = "OBJ_783"
+            BuildableName = "CgRPC.framework"
+            BlueprintName = "CgRPC"
             ReferencedContainer = "container:SwiftGRPC.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
