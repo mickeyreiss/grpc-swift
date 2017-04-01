@@ -12,7 +12,7 @@ public class {{ .|call:protoFile.package,service.name,method.name}} {
                          metadata: Metadata,
                          completion: @escaping (CallResult) -> ())
     throws -> {{ .|call:protoFile.package,service.name,method.name}} {
-      let requestData = try request.serializeProtobuf()
+      let requestData = try request.serializedData()
       try call.start(.serverStreaming,
                      metadata:metadata,
                      message:requestData,
@@ -44,7 +44,7 @@ public class {{ .|call:protoFile.package,service.name,method.name}} {
     do {
       try call.receiveMessage() {(responseData) in
         if let responseData = responseData {
-          if let response = try? {{ method.output|protoMessageType }}(protobuf:responseData) {
+          if let response = try? {{ method.output|protoMessageType }}(serializedData:responseData) {
             completion(response, nil)
           } else {
             completion(nil, {{ .|clienterror:protoFile.package,service.name }}.invalidMessageReceived)

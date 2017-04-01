@@ -84,13 +84,13 @@ public class Echo_EchoGetCall {
                          completion: @escaping (Echo_EchoResponse?, CallResult)->())
     throws -> Echo_EchoGetCall {
 
-      let requestData = try request.serializeProtobuf()
+      let requestData = try request.serializedData()
       try call.start(.unary,
                      metadata:metadata,
                      message:requestData)
       {(callResult) in
         if let responseData = callResult.resultData,
-          let response = try? Echo_EchoResponse(protobuf:responseData) {
+          let response = try? Echo_EchoResponse(serializedData:responseData) {
           completion(response, callResult)
         } else {
           completion(nil, callResult)
@@ -114,7 +114,7 @@ public class Echo_EchoExpandCall {
                          metadata: Metadata,
                          completion: @escaping (CallResult) -> ())
     throws -> Echo_EchoExpandCall {
-      let requestData = try request.serializeProtobuf()
+      let requestData = try request.serializedData()
       try call.start(.serverStreaming,
                      metadata:metadata,
                      message:requestData,
@@ -146,7 +146,7 @@ public class Echo_EchoExpandCall {
     do {
       try call.receiveMessage() {(responseData) in
         if let responseData = responseData {
-          if let response = try? Echo_EchoResponse(protobuf:responseData) {
+          if let response = try? Echo_EchoResponse(serializedData:responseData) {
             completion(response, nil)
           } else {
             completion(nil, Echo_EchoClientError.invalidMessageReceived)
@@ -177,7 +177,7 @@ public class Echo_EchoCollectCall {
 
   /// Call this to send each message in the request stream. Nonblocking.
   public func send(_ message:Echo_EchoRequest, errorHandler:@escaping (Error)->()) throws {
-    let messageData = try message.serializeProtobuf()
+    let messageData = try message.serializedData()
     try call.sendMessage(data:messageData, errorHandler:errorHandler)
   }
 
@@ -208,7 +208,7 @@ public class Echo_EchoCollectCall {
       do {
         try call.receiveMessage() {(responseData) in
           if let responseData = responseData,
-            let response = try? Echo_EchoResponse(protobuf:responseData) {
+            let response = try? Echo_EchoResponse(serializedData:responseData) {
             completion(response, nil)
           } else {
             completion(nil, Echo_EchoClientError.invalidMessageReceived)
@@ -261,7 +261,7 @@ public class Echo_EchoUpdateCall {
     do {
       try call.receiveMessage() {(data) in
         if let data = data {
-          if let returnMessage = try? Echo_EchoResponse(protobuf:data) {
+          if let returnMessage = try? Echo_EchoResponse(serializedData:data) {
             completion(returnMessage, nil)
           } else {
             completion(nil, Echo_EchoClientError.invalidMessageReceived)
@@ -275,7 +275,7 @@ public class Echo_EchoUpdateCall {
 
   /// Call this to send each message in the request stream.
   public func send(_ message:Echo_EchoRequest, errorHandler:@escaping (Error)->()) throws {
-    let messageData = try message.serializeProtobuf()
+    let messageData = try message.serializedData()
     try call.sendMessage(data:messageData, errorHandler:errorHandler)
   }
 
@@ -330,13 +330,13 @@ public class Echo_EchoService {
   }
 
   /// Synchronous. Unary.
-  public func get(_ request: Echo_EchoRequest)
+  func get(_ request: Echo_EchoRequest)
     throws
     -> Echo_EchoResponse {
       return try Echo_EchoGetCall(channel).run(request:request, metadata:metadata)
   }
   /// Asynchronous. Unary.
-  public func get(_ request: Echo_EchoRequest,
+  func get(_ request: Echo_EchoRequest,
                   completion: @escaping (Echo_EchoResponse?, CallResult)->())
     throws
     -> Echo_EchoGetCall {
@@ -347,7 +347,7 @@ public class Echo_EchoService {
   /// Asynchronous. Server-streaming.
   /// Send the initial message.
   /// Use methods on the returned object to get streamed responses.
-  public func expand(_ request: Echo_EchoRequest, completion: @escaping (CallResult)->())
+  func expand(_ request: Echo_EchoRequest, completion: @escaping (CallResult)->())
     throws
     -> Echo_EchoExpandCall {
       return try Echo_EchoExpandCall(channel).start(request:request, metadata:metadata, completion:completion)
@@ -355,7 +355,7 @@ public class Echo_EchoService {
   /// Asynchronous. Client-streaming.
   /// Use methods on the returned object to stream messages and
   /// to close the connection and wait for a final response.
-  public func collect(completion: @escaping (CallResult)->())
+  func collect(completion: @escaping (CallResult)->())
     throws
     -> Echo_EchoCollectCall {
       return try Echo_EchoCollectCall(channel).start(metadata:metadata, completion:completion)
@@ -363,7 +363,7 @@ public class Echo_EchoService {
   /// Asynchronous. Bidirectional-streaming.
   /// Use methods on the returned object to stream messages,
   /// to wait for replies, and to close the connection.
-  public func update(completion: @escaping (CallResult)->())
+  func update(completion: @escaping (CallResult)->())
     throws
     -> Echo_EchoUpdateCall {
       return try Echo_EchoUpdateCall(channel).start(metadata:metadata, completion:completion)

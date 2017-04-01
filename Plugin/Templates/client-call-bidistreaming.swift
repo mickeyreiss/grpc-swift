@@ -38,7 +38,7 @@ public class {{ .|call:protoFile.package,service.name,method.name }} {
     do {
       try call.receiveMessage() {(data) in
         if let data = data {
-          if let returnMessage = try? {{ method.output|protoMessageType }}(protobuf:data) {
+          if let returnMessage = try? {{ method.output|protoMessageType }}(serializedData:data) {
             completion(returnMessage, nil)
           } else {
             completion(nil, {{ .|clienterror:protoFile.package,service.name }}.invalidMessageReceived)
@@ -52,7 +52,7 @@ public class {{ .|call:protoFile.package,service.name,method.name }} {
 
   /// Call this to send each message in the request stream.
   public func send(_ message:Echo_EchoRequest, errorHandler:@escaping (Error)->()) throws {
-    let messageData = try message.serializeProtobuf()
+    let messageData = try message.serializedData()
     try call.sendMessage(data:messageData, errorHandler:errorHandler)
   }
 

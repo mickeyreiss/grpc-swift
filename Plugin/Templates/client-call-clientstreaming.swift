@@ -16,7 +16,7 @@ public class {{ .|call:protoFile.package,service.name,method.name}} {
 
   /// Call this to send each message in the request stream. Nonblocking.
   public func send(_ message:Echo_EchoRequest, errorHandler:@escaping (Error)->()) throws {
-    let messageData = try message.serializeProtobuf()
+    let messageData = try message.serializedData()
     try call.sendMessage(data:messageData, errorHandler:errorHandler)
   }
 
@@ -47,7 +47,7 @@ public class {{ .|call:protoFile.package,service.name,method.name}} {
       do {
         try call.receiveMessage() {(responseData) in
           if let responseData = responseData,
-            let response = try? {{ method.output|protoMessageType }}(protobuf:responseData) {
+            let response = try? {{ method.output|protoMessageType }}(serializedData:responseData) {
             completion(response, nil)
           } else {
             completion(nil, {{ .|clienterror:protoFile.package,service.name }}.invalidMessageReceived)

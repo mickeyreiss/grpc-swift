@@ -32,13 +32,13 @@ public class {{ .|call:protoFile.package,service.name,method.name}} {
                          completion: @escaping ({{ method.output|protoMessageType }}?, CallResult)->())
     throws -> {{ .|call:protoFile.package,service.name,method.name}} {
 
-      let requestData = try request.serializeProtobuf()
+      let requestData = try request.serializedData()
       try call.start(.unary,
                      metadata:metadata,
                      message:requestData)
       {(callResult) in
         if let responseData = callResult.resultData,
-          let response = try? {{ method.output|protoMessageType}}(protobuf:responseData) {
+          let response = try? {{ method.output|protoMessageType}}(serializedData:responseData) {
           completion(response, callResult)
         } else {
           completion(nil, callResult)
