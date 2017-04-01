@@ -1,5 +1,5 @@
 /// {{ method.name }} (Bidirectional Streaming)
-public class {{ .|call:protoFile.package,service.name,method.name }} {
+class {{ .|call:protoFile.package,service.name,method.name }} {
   private var call : Call
 
   /// Create a call.
@@ -15,7 +15,7 @@ public class {{ .|call:protoFile.package,service.name,method.name }} {
   }
 
   /// Call this to wait for a result. Blocking.
-  public func receive() throws -> {{ method.output|protoMessageType }} {
+  func receive() throws -> {{ method.output|protoMessageType }} {
     var returnError : {{ .|clienterror:protoFile.package,service.name }}?
     var returnMessage : {{ method.output|protoMessageType }}!
     let sem = DispatchSemaphore(value: 0)
@@ -34,7 +34,7 @@ public class {{ .|call:protoFile.package,service.name,method.name }} {
   }
 
   /// Call this to wait for a result. Nonblocking.
-  public func receive(completion:@escaping ({{ method.output|protoMessageType }}?, {{ .|clienterror:protoFile.package,service.name }}?)->()) throws {
+  func receive(completion:@escaping ({{ method.output|protoMessageType }}?, {{ .|clienterror:protoFile.package,service.name }}?)->()) throws {
     do {
       try call.receiveMessage() {(data) in
         if let data = data {
@@ -51,13 +51,13 @@ public class {{ .|call:protoFile.package,service.name,method.name }} {
   }
 
   /// Call this to send each message in the request stream.
-  public func send(_ message:Echo_EchoRequest, errorHandler:@escaping (Error)->()) throws {
+  func send(_ message:Echo_EchoRequest, errorHandler:@escaping (Error)->()) throws {
     let messageData = try message.serializedData()
     try call.sendMessage(data:messageData, errorHandler:errorHandler)
   }
 
   /// Call this to close the sending connection. Blocking.
-  public func closeSend() throws {
+  func closeSend() throws {
     let sem = DispatchSemaphore(value: 0)
     try closeSend() {
       sem.signal()
@@ -66,7 +66,7 @@ public class {{ .|call:protoFile.package,service.name,method.name }} {
   }
 
   /// Call this to close the sending connection. Nonblocking.
-  public func closeSend(completion:@escaping ()->()) throws {
+  func closeSend(completion:@escaping ()->()) throws {
     try call.close() {
       completion()
     }

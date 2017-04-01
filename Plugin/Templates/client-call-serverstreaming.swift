@@ -1,5 +1,5 @@
 /// {{ method.name }} (Server Streaming)
-public class {{ .|call:protoFile.package,service.name,method.name}} {
+class {{ .|call:protoFile.package,service.name,method.name}} {
   private var call : Call
 
   /// Create a call.
@@ -21,7 +21,7 @@ public class {{ .|call:protoFile.package,service.name,method.name}} {
   }
 
   /// Call this to wait for a result. Blocking.
-  public func receive() throws -> {{ method.output|protoMessageType }} {
+  func receive() throws -> {{ method.output|protoMessageType }} {
     var returnError : {{ .|clienterror:protoFile.package,service.name }}?
     var returnResponse : {{ method.output|protoMessageType }}!
     let sem = DispatchSemaphore(value: 0)
@@ -40,7 +40,7 @@ public class {{ .|call:protoFile.package,service.name,method.name}} {
   }
 
   /// Call this to wait for a result. Nonblocking.
-  public func receive(completion:@escaping ({{ method.output|protoMessageType }}?, {{ .|clienterror:protoFile.package,service.name }}?)->()) throws {
+  func receive(completion:@escaping ({{ method.output|protoMessageType }}?, {{ .|clienterror:protoFile.package,service.name }}?)->()) throws {
     do {
       try call.receiveMessage() {(responseData) in
         if let responseData = responseData {

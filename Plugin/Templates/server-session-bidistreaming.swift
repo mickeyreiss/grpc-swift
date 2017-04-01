@@ -1,5 +1,5 @@
 // {{ method.name }} (Bidirectional Streaming)
-public class {{ .|session:protoFile.package,service.name,method.name }} : {{ .|service:protoFile.package,service.name }}Session {
+class {{ .|session:protoFile.package,service.name,method.name }} : {{ .|service:protoFile.package,service.name }}Session {
   private var provider : {{ .|provider:protoFile.package,service.name }}
 
   /// Create a session.
@@ -9,13 +9,13 @@ public class {{ .|session:protoFile.package,service.name,method.name }} : {{ .|s
   }
 
   /// Receive a message. Blocks until a message is received or the client closes the connection.
-  public func receive() throws -> {{ method.input|protoMessageType }} {
+  func receive() throws -> {{ method.input|protoMessageType }} {
     let sem = DispatchSemaphore(value: 0)
     var requestMessage : {{ method.input|protoMessageType }}?
     try self.handler.receiveMessage() {(requestData) in
       if let requestData = requestData {
         do {
-          requestMessage = try {{ method.input|protoMessageType }}(protobuf:requestData)
+          requestMessage = try {{ method.input|protoMessageType }}(serializedData:requestData)
         } catch (let error) {
           print("error \(error)")
         }
@@ -31,12 +31,12 @@ public class {{ .|session:protoFile.package,service.name,method.name }} : {{ .|s
   }
 
   /// Send a message. Nonblocking.
-  public func send(_ response: {{ method.output|protoMessageType }}) throws {
-    try handler.sendResponse(message:response.serializeProtobuf()) {}
+  func send(_ response: {{ method.output|protoMessageType }}) throws {
+    try handler.sendResponse(message:response.serializedData()) {}
   }
 
   /// Close a connection. Blocks until the connection is closed.
-  public func close() throws {
+  func close() throws {
     let sem = DispatchSemaphore(value: 0)
     try self.handler.sendStatus(statusCode:self.statusCode,
                                 statusMessage:self.statusMessage,

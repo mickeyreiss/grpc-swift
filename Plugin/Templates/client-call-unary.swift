@@ -1,5 +1,5 @@
 /// {{ method.name }} (Unary)
-public class {{ .|call:protoFile.package,service.name,method.name}} {
+class {{ .|call:protoFile.package,service.name,method.name}} {
   private var call : Call
 
   /// Create a call.

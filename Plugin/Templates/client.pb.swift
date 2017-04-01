@@ -45,7 +45,7 @@ import gRPC
 //-{% for service in protoFile.service %}
 
 /// Type for errors thrown from generated client code.
-public enum {{ .|clienterror:protoFile.package,service.name}} : Error {
+enum {{ .|clienterror:protoFile.package,service.name}} : Error {
   case endOfStream
   case invalidMessageReceived
   case error(c: CallResult)
@@ -66,16 +66,16 @@ public enum {{ .|clienterror:protoFile.package,service.name}} : Error {
 //-{% endif %}
 //-{% endfor %}
 /// Call methods of this class to make API calls.
-public class {{ .|serviceclass:protoFile.package,service.name }} {
+class {{ .|serviceclass:protoFile.package,service.name }} {
   private var channel: Channel
 
   /// This metadata will be sent with all requests.
-  public var metadata : Metadata
+  var metadata : Metadata
 
   /// This property allows the service host name to be overridden.
   /// For example, it can be used to make calls to "localhost:8080"
   /// appear to be to "example.com".
-  public var host : String {
+  var host : String {
     get {
       return self.channel.host
     }
@@ -85,14 +85,14 @@ public class {{ .|serviceclass:protoFile.package,service.name }} {
   }
 
   /// Create a client that makes insecure connections.
-  public init(address: String) {
+  init(address: String) {
     gRPC.initialize()
     channel = Channel(address:address)
     metadata = Metadata()
   }
 
   /// Create a client that makes secure connections.
-  public init(address: String, certificates: String?, host: String?) {
+  init(address: String, certificates: String?, host: String?) {
     gRPC.initialize()
     channel = Channel(address:address, certificates:certificates, host:host)
     metadata = Metadata()

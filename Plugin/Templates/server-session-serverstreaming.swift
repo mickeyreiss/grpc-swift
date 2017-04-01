@@ -1,5 +1,5 @@
 // {{ method.name }} (Server Streaming)
-public class {{ .|session:protoFile.package,service.name,method.name }} : {{ .|service:protoFile.package,service.name }}Session {
+class {{ .|session:protoFile.package,service.name,method.name }} : {{ .|service:protoFile.package,service.name }}Session {
   private var provider : {{ .|provider:protoFile.package,service.name }}
 
   /// Create a session.
@@ -9,8 +9,8 @@ public class {{ .|session:protoFile.package,service.name,method.name }} : {{ .|s
   }
 
   /// Send a message. Nonblocking.
-  public func send(_ response: {{ method.output|protoMessageType }}) throws {
-    try handler.sendResponse(message:response.serializeProtobuf()) {}
+  func send(_ response: {{ method.output|protoMessageType }}) throws {
+    try handler.sendResponse(message:response.serializedData()) {}
   }
 
   /// Run the session. Internal.
@@ -18,7 +18,7 @@ public class {{ .|session:protoFile.package,service.name,method.name }} : {{ .|s
     try self.handler.receiveMessage(initialMetadata:initialMetadata) {(requestData) in
       if let requestData = requestData {
         do {
-          let requestMessage = try {{ method.input|protoMessageType }}(protobuf:requestData)
+          let requestMessage = try {{ method.input|protoMessageType }}(serializedData:requestData)
           // to keep providers from blocking the server thread,
           // we dispatch them to another queue.
           queue.async {

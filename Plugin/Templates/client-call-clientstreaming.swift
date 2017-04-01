@@ -1,5 +1,5 @@
 /// {{ method.name }} (Client Streaming)
-public class {{ .|call:protoFile.package,service.name,method.name}} {
+class {{ .|call:protoFile.package,service.name,method.name}} {
   private var call : Call
 
   /// Create a call.
@@ -15,13 +15,13 @@ public class {{ .|call:protoFile.package,service.name,method.name}} {
   }
 
   /// Call this to send each message in the request stream. Nonblocking.
-  public func send(_ message:Echo_EchoRequest, errorHandler:@escaping (Error)->()) throws {
+  func send(_ message:Echo_EchoRequest, errorHandler:@escaping (Error)->()) throws {
     let messageData = try message.serializedData()
     try call.sendMessage(data:messageData, errorHandler:errorHandler)
   }
 
   /// Call this to close the connection and wait for a response. Blocking.
-  public func closeAndReceive() throws -> {{ method.output|protoMessageType }} {
+  func closeAndReceive() throws -> {{ method.output|protoMessageType }} {
     var returnError : {{ .|clienterror:protoFile.package,service.name }}?
     var returnResponse : {{ method.output|protoMessageType }}!
     let sem = DispatchSemaphore(value: 0)
@@ -42,7 +42,7 @@ public class {{ .|call:protoFile.package,service.name,method.name}} {
   }
 
   /// Call this to close the connection and wait for a response. Nonblocking.
-  public func closeAndReceive(completion:@escaping ({{ method.output|protoMessageType }}?, {{ .|clienterror:protoFile.package,service.name }}?)->())
+  func closeAndReceive(completion:@escaping ({{ method.output|protoMessageType }}?, {{ .|clienterror:protoFile.package,service.name }}?)->())
     throws {
       do {
         try call.receiveMessage() {(responseData) in

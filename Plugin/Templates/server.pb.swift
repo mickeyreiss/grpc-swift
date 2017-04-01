@@ -45,12 +45,12 @@ import gRPC
 //-{% for service in protoFile.service %}
 
 /// Type for errors thrown from generated server code.
-public enum {{ .|servererror:protoFile.package,service.name }} : Error {
+enum {{ .|servererror:protoFile.package,service.name }} : Error {
   case endOfStream
 }
 
 /// To build a server, implement a class that conforms to this protocol.
-public protocol {{ .|provider:protoFile.package,service.name }} {
+protocol {{ .|provider:protoFile.package,service.name }} {
   //-{% for method in service.method %}
   //-{% if not method.clientStreaming and not method.serverStreaming %}
   func {{ method.name|lowercaseFirst }}(request : {{ method.input|protoMessageType }}, session : {{ .|session:protoFile.package,service.name,method.name }}) throws -> {{ method.output|protoMessageType }}
@@ -68,14 +68,14 @@ public protocol {{ .|provider:protoFile.package,service.name }} {
 }
 
 /// Common properties available in each service session.
-public class {{ .|service:protoFile.package,service.name }}Session {
+class {{ .|service:protoFile.package,service.name }}Session {
   fileprivate var handler : gRPC.Handler
-  public var requestMetadata : Metadata { return handler.requestMetadata }
+  var requestMetadata : Metadata { return handler.requestMetadata }
 
-  public var statusCode : Int = 0
-  public var statusMessage : String = "OK"
-  public var initialMetadata : Metadata = Metadata()
-  public var trailingMetadata : Metadata = Metadata()
+  var statusCode : Int = 0
+  var statusMessage : String = "OK"
+  var initialMetadata : Metadata = Metadata()
+  var trailingMetadata : Metadata = Metadata()
 
   fileprivate init(handler:gRPC.Handler) {
     self.handler = handler
@@ -98,13 +98,13 @@ public class {{ .|service:protoFile.package,service.name }}Session {
 //-{% endfor %}
 
 /// Main server for generated service
-public class {{ .|server:protoFile.package,service.name }} {
+class {{ .|server:protoFile.package,service.name }} {
   private var address: String
   private var server: gRPC.Server
   private var provider: {{ .|provider:protoFile.package,service.name }}?
 
   /// Create a server that accepts insecure connections.
-  public init(address:String,
+  init(address:String,
               provider:{{ .|provider:protoFile.package,service.name }}) {
     gRPC.initialize()
     self.address = address
@@ -113,7 +113,7 @@ public class {{ .|server:protoFile.package,service.name }} {
   }
 
   /// Create a server that accepts secure connections.
-  public init?(address:String,
+  init?(address:String,
                certificateURL:URL,
                keyURL:URL,
                provider:{{ .|provider:protoFile.package,service.name }}) {
@@ -130,7 +130,7 @@ public class {{ .|server:protoFile.package,service.name }} {
   }
 
   /// Start the server.
-  public func start(queue:DispatchQueue = DispatchQueue.global()) {
+  func start(queue:DispatchQueue = DispatchQueue.global()) {
     guard let provider = self.provider else {
       assert(false) // the server requires a provider
     }
