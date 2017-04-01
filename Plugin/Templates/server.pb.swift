@@ -53,16 +53,16 @@ public enum {{ .|servererror:protoFile.package,service.name }} : Error {
 public protocol {{ .|provider:protoFile.package,service.name }} {
   //-{% for method in service.method %}
   //-{% if not method.clientStreaming and not method.serverStreaming %}
-  func {{ method.name|lowercase }}(request : {{ method.input|protoMessageType }}, session : {{ .|session:protoFile.package,service.name,method.name }}) throws -> {{ method.output|protoMessageType }}
+  func {{ method.name|lowercaseFirst }}(request : {{ method.input|protoMessageType }}, session : {{ .|session:protoFile.package,service.name,method.name }}) throws -> {{ method.output|protoMessageType }}
   //-{% endif %}
   //-{% if not method.clientStreaming and method.serverStreaming %}
-  func {{ method.name|lowercase }}(request : {{ method.input|protoMessageType }}, session : {{ .|session:protoFile.package,service.name,method.name }}) throws
+  func {{ method.name|lowercaseFirst }}(request : {{ method.input|protoMessageType }}, session : {{ .|session:protoFile.package,service.name,method.name }}) throws
   //-{% endif %}
   //-{% if method.clientStreaming and not method.serverStreaming %}
-  func {{ method.name|lowercase }}(session : {{ .|session:protoFile.package,service.name,method.name }}) throws
+  func {{ method.name|lowercaseFirst }}(session : {{ .|session:protoFile.package,service.name,method.name }}) throws
   //-{% endif %}
   //-{% if method.clientStreaming and method.serverStreaming %}
-  func {{ method.name|lowercase }}(session : {{ .|session:protoFile.package,service.name,method.name }}) throws
+  func {{ method.name|lowercaseFirst }}(session : {{ .|session:protoFile.package,service.name,method.name }}) throws
   //-{% endif %}
   //-{% endfor %}
 }

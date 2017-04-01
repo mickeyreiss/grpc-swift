@@ -42,6 +42,12 @@ extension String {
     return self.replacingOccurrences(of:".", with:"_")
   }
 
+  var lowercaseFirst : String {
+    let first = String(self.characters.prefix(1)).lowercased()
+    let other = String(self.characters.dropFirst())
+    return first + other
+  }
+
   var uppercasedFirst : String {
     var out = self.characters
     if let first = out.popFirst() {
@@ -210,6 +216,12 @@ func main() throws {
         throw TemplateSyntaxError("protoMessageType filter received invalid value, expected type name string, got: \(value.debugDescription)")
     }
     return protoMessageName(typeName)
+  }
+  ext.registerFilter("lowercaseFirst") { (value: Any?) in
+    guard let string = value as? String else {
+      return value
+    }
+    return string.lowercaseFirst
   }
   let templateEnvironment = Environment(loader: InternalLoader(),
                                         extensions:[ext])
