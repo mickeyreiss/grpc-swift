@@ -101,13 +101,13 @@ public class {{ .|serviceclass:protoFile.package,service.name }} {
   //-{% for method in service.method %}
   //-{% if not method.clientStreaming and not method.serverStreaming %}
   /// Synchronous. Unary.
-  public func {{ method.name|lowercaseFirst }}(_ request: {{ method.input|protoMessageType }})
+  func {{ method.name|lowercaseFirst }}(_ request: {{ method.input|protoMessageType }})
     throws
     -> {{ method.output|protoMessageType }} {
       return try {{ .|call:protoFile.package,service.name,method.name }}(channel).run(request:request, metadata:metadata)
   }
   /// Asynchronous. Unary.
-  public func {{ method.name|lowercaseFirst }}(_ request: {{ method.input|protoMessageType }},
+  func {{ method.name|lowercaseFirst }}(_ request: {{ method.input|protoMessageType }},
                   completion: @escaping ({{ method.output|protoMessageType }}?, CallResult)->())
     throws
     -> {{ .|call:protoFile.package,service.name,method.name }} {
@@ -120,7 +120,7 @@ public class {{ .|serviceclass:protoFile.package,service.name }} {
   /// Asynchronous. Server-streaming.
   /// Send the initial message.
   /// Use methods on the returned object to get streamed responses.
-  public func {{ method.name|lowercaseFirst }}(_ request: {{ method.input|protoMessageType }}, completion: @escaping (CallResult)->())
+  func {{ method.name|lowercaseFirst }}(_ request: {{ method.input|protoMessageType }}, completion: @escaping (CallResult)->())
     throws
     -> {{ .|call:protoFile.package,service.name,method.name }} {
       return try {{ .|call:protoFile.package,service.name,method.name }}(channel).start(request:request, metadata:metadata, completion:completion)
@@ -130,7 +130,7 @@ public class {{ .|serviceclass:protoFile.package,service.name }} {
   /// Asynchronous. Client-streaming.
   /// Use methods on the returned object to stream messages and
   /// to close the connection and wait for a final response.
-  public func {{ method.name|lowercaseFirst }}(completion: @escaping (CallResult)->())
+  func {{ method.name|lowercaseFirst }}(completion: @escaping (CallResult)->())
     throws
     -> {{ .|call:protoFile.package,service.name,method.name }} {
       return try {{ .|call:protoFile.package,service.name,method.name }}(channel).start(metadata:metadata, completion:completion)
@@ -140,7 +140,7 @@ public class {{ .|serviceclass:protoFile.package,service.name }} {
   /// Asynchronous. Bidirectional-streaming.
   /// Use methods on the returned object to stream messages,
   /// to wait for replies, and to close the connection.
-  public func {{ method.name|lowercaseFirst }}(completion: @escaping (CallResult)->())
+  func {{ method.name|lowercaseFirst }}(completion: @escaping (CallResult)->())
     throws
     -> {{ .|call:protoFile.package,service.name,method.name }} {
       return try {{ .|call:protoFile.package,service.name,method.name }}(channel).start(metadata:metadata, completion:completion)
