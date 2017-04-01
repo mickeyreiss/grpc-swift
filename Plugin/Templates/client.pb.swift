@@ -45,7 +45,7 @@ import gRPC
 //-{% for service in protoFile.service %}
 
 /// Type for errors thrown from generated client code.
-public enum {{ .|clienterror:protoFile,service }} : Error {
+public enum {{ .|clienterror:protoFile.package,service.name}} : Error {
   case endOfStream
   case invalidMessageReceived
   case error(c: CallResult)
@@ -66,7 +66,7 @@ public enum {{ .|clienterror:protoFile,service }} : Error {
 //-{% endif %}
 //-{% endfor %}
 /// Call methods of this class to make API calls.
-public class {{ .|serviceclass:protoFile,service }} {
+public class {{ .|serviceclass:protoFile.package,service.name }} {
   private var channel: Channel
 
   /// This metadata will be sent with all requests.
@@ -101,17 +101,17 @@ public class {{ .|serviceclass:protoFile,service }} {
   //-{% for method in service.method %}
   //-{% if not method.clientStreaming and not method.serverStreaming %}
   /// Synchronous. Unary.
-  public func {{ method.name|lowercase }}(_ request: {{ method|input }})
+  public func {{ method.name|lowercase }}(_ request: {{ method.input|protoMessageType }})
     throws
-    -> {{ method|output }} {
-      return try {{ .|call:protoFile,service,method }}(channel).run(request:request, metadata:metadata)
+    -> {{ method.output|protoMessageType }} {
+      return try {{ .|call:protoFile.package,service.name,method.name }}(channel).run(request:request, metadata:metadata)
   }
   /// Asynchronous. Unary.
-  public func {{ method.name|lowercase }}(_ request: {{ method|input }},
-                  completion: @escaping ({{ method|output }}?, CallResult)->())
+  public func {{ method.name|lowercase }}(_ request: {{ method.input|protoMessageType }},
+                  completion: @escaping ({{ method.output|protoMessageType }}?, CallResult)->())
     throws
-    -> {{ .|call:protoFile,service,method }} {
-      return try {{ .|call:protoFile,service,method }}(channel).start(request:request,
+    -> {{ .|call:protoFile.package,service.name,method.name }} {
+      return try {{ .|call:protoFile.package,service.name,method.name }}(channel).start(request:request,
                                                  metadata:metadata,
                                                  completion:completion)
   }
@@ -120,10 +120,10 @@ public class {{ .|serviceclass:protoFile,service }} {
   /// Asynchronous. Server-streaming.
   /// Send the initial message.
   /// Use methods on the returned object to get streamed responses.
-  public func {{ method.name|lowercase }}(_ request: {{ method|input }}, completion: @escaping (CallResult)->())
+  public func {{ method.name|lowercase }}(_ request: {{ method.input|protoMessageType }}, completion: @escaping (CallResult)->())
     throws
-    -> {{ .|call:protoFile,service,method }} {
-      return try {{ .|call:protoFile,service,method }}(channel).start(request:request, metadata:metadata, completion:completion)
+    -> {{ .|call:protoFile.package,service.name,method.name }} {
+      return try {{ .|call:protoFile.package,service.name,method.name }}(channel).start(request:request, metadata:metadata, completion:completion)
   }
   //-{% endif %}
   //-{% if method.clientStreaming and not method.serverStreaming %}
@@ -132,8 +132,8 @@ public class {{ .|serviceclass:protoFile,service }} {
   /// to close the connection and wait for a final response.
   public func {{ method.name|lowercase }}(completion: @escaping (CallResult)->())
     throws
-    -> {{ .|call:protoFile,service,method }} {
-      return try {{ .|call:protoFile,service,method }}(channel).start(metadata:metadata, completion:completion)
+    -> {{ .|call:protoFile.package,service.name,method.name }} {
+      return try {{ .|call:protoFile.package,service.name,method.name }}(channel).start(metadata:metadata, completion:completion)
   }
   //-{% endif %}
   //-{% if method.clientStreaming and method.serverStreaming %}
@@ -142,8 +142,8 @@ public class {{ .|serviceclass:protoFile,service }} {
   /// to wait for replies, and to close the connection.
   public func {{ method.name|lowercase }}(completion: @escaping (CallResult)->())
     throws
-    -> {{ .|call:protoFile,service,method }} {
-      return try {{ .|call:protoFile,service,method }}(channel).start(metadata:metadata, completion:completion)
+    -> {{ .|call:protoFile.package,service.name,method.name }} {
+      return try {{ .|call:protoFile.package,service.name,method.name }}(channel).start(metadata:metadata, completion:completion)
   }
   //-{% endif %}
   //-{% endfor %}

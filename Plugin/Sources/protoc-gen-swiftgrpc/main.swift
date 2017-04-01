@@ -73,73 +73,16 @@ func protoMessageName(_ name :String?) -> String {
   return parts.joined(separator:"_")
 }
 
-func pathName(_ arguments: [Any?]) throws -> String {
-  if arguments.count != 3 {
-    throw TemplateSyntaxError("path expects 3 arguments")
-  }
-  guard let protoFile = arguments[0] as? Google_Protobuf_FileDescriptorProto
-    else {
-      throw TemplateSyntaxError("tag must be called with a " +
-        "Google_Protobuf_FileDescriptorProto" +
-        " argument, received \(String(describing: arguments[0]))")
-  }
-  guard let service = arguments[1] as? Google_Protobuf_ServiceDescriptorProto
-    else {
-      throw TemplateSyntaxError("tag must be called with a " +
-        "Google_Protobuf_ServiceDescriptorProto" +
-        " argument, received \(String(describing: arguments[1]))")
-  }
-  guard let method = arguments[2] as? Google_Protobuf_MethodDescriptorProto
-    else {
-      throw TemplateSyntaxError("tag must be called with a " +
-        "Google_Protobuf_MethodDescriptorProto" +
-        " argument, received \(String(describing: arguments[2]))")
-  }
-  return "/" + protoFile.package + "." + service.name + "/" + method.name
+func pathName(forPackage packageName: String, service serviceName: String, method methodName: String) throws -> String {
+  return "/" + packageName + "." + serviceName + "/" + methodName
 }
 
-func packageServiceMethodName(_ arguments: [Any?]) throws -> String {
-  if arguments.count != 3 {
-    throw TemplateSyntaxError("tag expects 3 arguments")
-  }
-  guard let protoFile = arguments[0] as? Google_Protobuf_FileDescriptorProto
-    else {
-      throw TemplateSyntaxError("tag must be called with a " +
-        "Google_Protobuf_FileDescriptorProto" +
-        " argument, received \(String(describing: arguments[0]))")
-  }
-  guard let service = arguments[1] as? Google_Protobuf_ServiceDescriptorProto
-    else {
-      throw TemplateSyntaxError("tag must be called with a " +
-        "Google_Protobuf_ServiceDescriptorProto" +
-        " argument, received \(String(describing: arguments[1]))")
-  }
-  guard let method = arguments[2] as? Google_Protobuf_MethodDescriptorProto
-    else {
-      throw TemplateSyntaxError("tag must be called with a " +
-        "Google_Protobuf_MethodDescriptorProto" +
-        " argument, received \(String(describing: arguments[2]))")
-  }
-  return protoFile.package.capitalized.undotted + "_" + service.name + method.name
+func serviceMethodName(forPackage packageName: String, service serviceName: String, method methodName: String) throws -> String {
+  return packageName.capitalized.undotted + "_" + serviceName + methodName
 }
 
-func packageServiceName(_ arguments: [Any?]) throws -> String {
-  if arguments.count != 2 {
-    throw TemplateSyntaxError("tag expects 2 arguments")
-  }
-  guard let protoFile = arguments[0] as? Google_Protobuf_FileDescriptorProto
-    else {
-      throw TemplateSyntaxError("tag must be called with a " +
-        "Google_Protobuf_FileDescriptorProto" +
-        " argument, received \(String(describing: arguments[0]))")
-  }
-  guard let service = arguments[1] as? Google_Protobuf_ServiceDescriptorProto
-    else {
-      throw TemplateSyntaxError("tag must be called with a " +
-        "Google_Protobuf_ServiceDescriptorProto" +
-        " argument, received \(String(describing: arguments[1]))")
-  }
-  return protoFile.package.capitalized.undotted + "_" + service.name
+func serviceName(forPackage packageName: String, service serviceName: String) throws -> String {
+  return packageName.capitalized.undotted + "_" + serviceName
 }
 
 // Code templates use "//-" prefixes to comment-out template operators
@@ -171,43 +114,102 @@ func main() throws {
   // initialize template engine and add custom filters
   let ext = Extension()
   ext.registerFilter("call") { (value: Any?, arguments: [Any?]) in
-    return try packageServiceMethodName(arguments) + "Call"
+    guard
+      arguments.count == 3,
+      let package = arguments[0] as? String,
+      let service = arguments[1] as? String,
+      let method = arguments[2] as? String else {
+        throw TemplateSyntaxError("call filter received invalid arguments, expected (package, service, method), got: \(arguments)")
+    }
+    return try serviceMethodName(forPackage: package, service: service, method: method) + "Call"
   }
   ext.registerFilter("session") { (value: Any?, arguments: [Any?]) in
-    return try packageServiceMethodName(arguments) + "Session"
+    guard
+      arguments.count == 3,
+      let package = arguments[0] as? String,
+      let service = arguments[1] as? String,
+      let method = arguments[2] as? String else {
+        throw TemplateSyntaxError("session filter received invalid arguments, expected (package, service, method), got: \(arguments)")
+    }
+    return try serviceMethodName(forPackage: package, service: service, method: method) + "Session"
   }
   ext.registerFilter("path") { (value: Any?, arguments: [Any?]) in
-    return try pathName(arguments)
+    guard
+      arguments.count == 3,
+      let package = arguments[0] as? String,
+      let service = arguments[1] as? String,
+      let method = arguments[2] as? String else {
+        throw TemplateSyntaxError("path filter received invalid arguments, expected (package, service, method), got: \(arguments)")
+    }
+    return try pathName(forPackage: package, service: service, method: method)
   }
   ext.registerFilter("provider") { (value: Any?, arguments: [Any?]) in
-    return try packageServiceName(arguments) + "Provider"
+    guard
+      arguments.count == 2,
+      let package = arguments[0] as? String,
+      let service = arguments[1] as? String
+      else {
+        throw TemplateSyntaxError("provider filter received invalid arguments, expected (package, service), got: \(arguments)")
+    }
+    return try serviceName(forPackage: package, service: service) + "Provider"
   }
   ext.registerFilter("clienterror") { (value: Any?, arguments: [Any?]) in
-    return try packageServiceName(arguments) + "ClientError"
+    guard
+      arguments.count == 2,
+      let package = arguments[0] as? String,
+      let service = arguments[1] as? String
+      else {
+        throw TemplateSyntaxError("clienterror filter received invalid arguments, expected (package, service), got: \(arguments)")
+    }
+    return try serviceName(forPackage: package, service: service) + "ClientError"
   }
   ext.registerFilter("serviceclass") { (value: Any?, arguments: [Any?]) in
-    return try packageServiceName(arguments) + "Service"
+    guard
+      arguments.count == 2,
+      let package = arguments[0] as? String,
+      let service = arguments[1] as? String
+      else {
+        throw TemplateSyntaxError("serviceclass filter received invalid arguments, expected (package, service), got: \(arguments)")
+    }
+    return try serviceName(forPackage: package, service: service) + "Service"
   }
   ext.registerFilter("servererror") { (value: Any?, arguments: [Any?]) in
-    return try packageServiceName(arguments) + "ServerError"
+    guard
+      arguments.count == 2,
+      let package = arguments[0] as? String,
+      let service = arguments[1] as? String
+      else {
+        throw TemplateSyntaxError("servererror filter received invalid arguments, expected (package, service), got: \(arguments)")
+    }
+    return try serviceName(forPackage: package, service: service) + "ServerError"
   }
   ext.registerFilter("server") { (value: Any?, arguments: [Any?]) in
-    return try packageServiceName(arguments) + "Server"
+    guard
+      arguments.count == 2,
+      let package = arguments[0] as? String,
+      let service = arguments[1] as? String
+      else {
+        throw TemplateSyntaxError("server filter received invalid arguments, expected (package, service), got: \(arguments)")
+    }
+    return try serviceName(forPackage: package, service: service) + "Server"
   }
   ext.registerFilter("service") { (value: Any?, arguments: [Any?]) in
-    return try packageServiceName(arguments)
-  }
-  ext.registerFilter("input") { (value: Any?) in
-    if let value = value as? Google_Protobuf_MethodDescriptorProto {
-      return protoMessageName(value.inputType)
+    guard
+      arguments.count == 2,
+      let package = arguments[0] as? String,
+      let service = arguments[1] as? String
+      else {
+        throw TemplateSyntaxError("service filter received invalid arguments, expected (package, service), got: \(arguments)")
     }
-    throw TemplateSyntaxError("message: invalid argument \(String(describing: value))")
+    return try serviceName(forPackage: package, service: service)
   }
-  ext.registerFilter("output") { (value: Any?) in
-    if let value = value as? Google_Protobuf_MethodDescriptorProto {
-      return protoMessageName(value.outputType)
+  ext.registerFilter("protoMessageType") { (value: Any?) in
+    guard
+      let typeName = value as? String
+      else {
+        throw TemplateSyntaxError("protoMessageType filter received invalid value, expected type name string, got: \(value.debugDescription)")
     }
-    throw TemplateSyntaxError("message: invalid argument \(String(describing: value))")
+    return protoMessageName(typeName)
   }
   let templateEnvironment = Environment(loader: InternalLoader(),
                                         extensions:[ext])
@@ -241,35 +243,53 @@ func main() throws {
       log += " Options \(service.options)\n"
     }
 
-    if protoFile.service.count > 0 {
     // generate separate implementation files for client and server
-    let context = ["protoFile": protoFile]
+    if protoFile.service.count > 0 {
+      let context = [
+        "protoFile": [
+          "name": protoFile.name,
+          "package": protoFile.package,
+          "service": protoFile.service.map { 
+            [
+              "name": $0.name,
+              "method": $0.method.map { [
+                "name": $0.name,
+                "input": $0.inputType,
+                "output": $0.outputType,
+                "clientStreaming": $0.clientStreaming,
+                "serverStreaming": $0.serverStreaming
+              ] },
+            ] 
+          },
+        ]
+      ]
 
-    do {
-      let clientFileName = package + ".client.pb.swift"
-      if !generatedFileNames.contains(clientFileName) {
-        generatedFileNames.insert(clientFileName)
-        let clientcode = try templateEnvironment.renderTemplate(name:"client.pb.swift",
-                                                                context: context)
-        var clientfile = Google_Protobuf_Compiler_CodeGeneratorResponse.File()
-        clientfile.name = clientFileName
-        clientfile.content = stripMarkers(clientcode)
-        response.file.append(clientfile)
-      }
+      do {
+        let clientFileName = package + ".client.pb.swift"
+        if !generatedFileNames.contains(clientFileName) {
+          generatedFileNames.insert(clientFileName)
+          let clientcode = try templateEnvironment.renderTemplate(name:"client.pb.swift",
+            context: context)
+          var clientfile = Google_Protobuf_Compiler_CodeGeneratorResponse.File()
+          clientfile.name = clientFileName
+          clientfile.content = stripMarkers(clientcode)
+          response.file.append(clientfile)
+        }
 
-      let serverFileName = package + ".server.pb.swift"
-      if !generatedFileNames.contains(serverFileName) {
-        generatedFileNames.insert(serverFileName)
-        let servercode = try templateEnvironment.renderTemplate(name:"server.pb.swift",
-                                                                context: context)
-        var serverfile = Google_Protobuf_Compiler_CodeGeneratorResponse.File()
-        serverfile.name = serverFileName
-        serverfile.content = stripMarkers(servercode)
-        response.file.append(serverfile)
+        let serverFileName = package + ".server.pb.swift"
+        if !generatedFileNames.contains(serverFileName) {
+          generatedFileNames.insert(serverFileName)
+          let servercode = try templateEnvironment.renderTemplate(name:"server.pb.swift",
+            context: context)
+          var serverfile = Google_Protobuf_Compiler_CodeGeneratorResponse.File()
+          serverfile.name = serverFileName
+          serverfile.content = stripMarkers(servercode)
+          response.file.append(serverfile)
+        }
+      } catch (let error) {
+        NSLog("Error: \(error)")
+        log += "ERROR: \(error)\n"
       }
-    } catch (let error) {
-      log += "ERROR: \(error)\n"
-    }
     }
   }
 

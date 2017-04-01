@@ -45,30 +45,30 @@ import gRPC
 //-{% for service in protoFile.service %}
 
 /// Type for errors thrown from generated server code.
-public enum {{ .|servererror:protoFile,service }} : Error {
+public enum {{ .|servererror:protoFile.package,service.name }} : Error {
   case endOfStream
 }
 
 /// To build a server, implement a class that conforms to this protocol.
-public protocol {{ .|provider:protoFile,service }} {
+public protocol {{ .|provider:protoFile.package,service.name }} {
   //-{% for method in service.method %}
   //-{% if not method.clientStreaming and not method.serverStreaming %}
-  func {{ method.name|lowercase }}(request : {{ method|input }}, session : {{ .|session:protoFile,service,method }}) throws -> {{ method|output }}
+  func {{ method.name|lowercase }}(request : {{ method.input|protoMessageType }}, session : {{ .|session:protoFile.package,service.name,method.name }}) throws -> {{ method.output|protoMessageType }}
   //-{% endif %}
   //-{% if not method.clientStreaming and method.serverStreaming %}
-  func {{ method.name|lowercase }}(request : {{ method|input }}, session : {{ .|session:protoFile,service,method }}) throws
+  func {{ method.name|lowercase }}(request : {{ method.input|protoMessageType }}, session : {{ .|session:protoFile.package,service.name,method.name }}) throws
   //-{% endif %}
   //-{% if method.clientStreaming and not method.serverStreaming %}
-  func {{ method.name|lowercase }}(session : {{ .|session:protoFile,service,method }}) throws
+  func {{ method.name|lowercase }}(session : {{ .|session:protoFile.package,service.name,method.name }}) throws
   //-{% endif %}
   //-{% if method.clientStreaming and method.serverStreaming %}
-  func {{ method.name|lowercase }}(session : {{ .|session:protoFile,service,method }}) throws
+  func {{ method.name|lowercase }}(session : {{ .|session:protoFile.package,service.name,method.name }}) throws
   //-{% endif %}
   //-{% endfor %}
 }
 
 /// Common properties available in each service session.
-public class {{ .|service:protoFile,service }}Session {
+public class {{ .|service:protoFile.package,service.name }}Session {
   fileprivate var handler : gRPC.Handler
   public var requestMetadata : Metadata { return handler.requestMetadata }
 
@@ -98,14 +98,14 @@ public class {{ .|service:protoFile,service }}Session {
 //-{% endfor %}
 
 /// Main server for generated service
-public class {{ .|server:protoFile,service }} {
+public class {{ .|server:protoFile.package,service.name }} {
   private var address: String
   private var server: gRPC.Server
-  private var provider: {{ .|provider:protoFile,service }}?
+  private var provider: {{ .|provider:protoFile.package,service.name }}?
 
   /// Create a server that accepts insecure connections.
   public init(address:String,
-              provider:{{ .|provider:protoFile,service }}) {
+              provider:{{ .|provider:protoFile.package,service.name }}) {
     gRPC.initialize()
     self.address = address
     self.provider = provider
@@ -116,7 +116,7 @@ public class {{ .|server:protoFile,service }} {
   public init?(address:String,
                certificateURL:URL,
                keyURL:URL,
-               provider:{{ .|provider:protoFile,service }}) {
+               provider:{{ .|provider:protoFile.package,service.name }}) {
     gRPC.initialize()
     self.address = address
     self.provider = provider
@@ -143,8 +143,8 @@ public class {{ .|server:protoFile,service }} {
       do {
         switch handler.method {
         //-{% for method in service.method %}
-        case "{{ .|path:protoFile,service,method }}":
-          try {{ .|session:protoFile,service,method }}(handler:handler, provider:provider).run(queue:queue)
+        case "{{ .|path:protoFile.package,service.name,method.name }}":
+          try {{ .|session:protoFile.package,service.name,method.name }}(handler:handler, provider:provider).run(queue:queue)
         //-{% endfor %}
         default:
           break // handle unknown requests

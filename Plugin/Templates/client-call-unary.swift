@@ -1,18 +1,18 @@
 /// {{ method.name }} (Unary)
-public class {{ .|call:protoFile,service,method }} {
+public class {{ .|call:protoFile.package,service.name,method.name}} {
   private var call : Call
 
   /// Create a call.
   fileprivate init(_ channel: Channel) {
-    self.call = channel.makeCall("{{ .|path:protoFile,service,method }}")
+    self.call = channel.makeCall("{{ .|path:protoFile.package,service.name,method.name }}")
   }
 
   /// Run the call. Blocks until the reply is received.
-  fileprivate func run(request: {{ method|input }},
-                       metadata: Metadata) throws -> {{ method|output }} {
+  fileprivate func run(request: {{ method.input|protoMessageType }},
+                       metadata: Metadata) throws -> {{ method.output|protoMessageType }} {
     let sem = DispatchSemaphore(value: 0)
     var returnCallResult : CallResult!
-    var returnResponse : {{ method|output }}?
+    var returnResponse : {{ method.output|protoMessageType }}?
     _ = try start(request:request, metadata:metadata) {response, callResult in
       returnResponse = response
       returnCallResult = callResult
@@ -22,15 +22,15 @@ public class {{ .|call:protoFile,service,method }} {
     if let returnResponse = returnResponse {
       return returnResponse
     } else {
-      throw {{ .|clienterror:protoFile,service }}.error(c: returnCallResult)
+      throw {{ .|clienterror:protoFile.package,service.name }}.error(c: returnCallResult)
     }
   }
 
   /// Start the call. Nonblocking.
-  fileprivate func start(request: {{ method|input }},
+  fileprivate func start(request: {{ method.input|protoMessageType }},
                          metadata: Metadata,
-                         completion: @escaping ({{ method|output }}?, CallResult)->())
-    throws -> {{ .|call:protoFile,service,method }} {
+                         completion: @escaping ({{ method.output|protoMessageType }}?, CallResult)->())
+    throws -> {{ .|call:protoFile.package,service.name,method.name}} {
 
       let requestData = try request.serializeProtobuf()
       try call.start(.unary,
@@ -38,7 +38,7 @@ public class {{ .|call:protoFile,service,method }} {
                      message:requestData)
       {(callResult) in
         if let responseData = callResult.resultData,
-          let response = try? {{ method|output }}(protobuf:responseData) {
+          let response = try? {{ method.output|protoMessageType}}(protobuf:responseData) {
           completion(response, callResult)
         } else {
           completion(nil, callResult)

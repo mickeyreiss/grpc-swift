@@ -1,21 +1,21 @@
 // {{ method.name }} (Bidirectional Streaming)
-public class {{ .|session:protoFile,service,method }} : {{ .|service:protoFile,service }}Session {
-  private var provider : {{ .|provider:protoFile,service }}
+public class {{ .|session:protoFile.package,service.name,method.name }} : {{ .|service:protoFile.package,service.name }}Session {
+  private var provider : {{ .|provider:protoFile.package,service.name }}
 
   /// Create a session.
-  fileprivate init(handler:gRPC.Handler, provider: {{ .|provider:protoFile,service }}) {
+  fileprivate init(handler:gRPC.Handler, provider: {{ .|provider:protoFile.package,service.name }}) {
     self.provider = provider
     super.init(handler:handler)
   }
 
   /// Receive a message. Blocks until a message is received or the client closes the connection.
-  public func receive() throws -> {{ method|input }} {
+  public func receive() throws -> {{ method.input|protoMessageType }} {
     let sem = DispatchSemaphore(value: 0)
-    var requestMessage : {{ method|input }}?
+    var requestMessage : {{ method.input|protoMessageType }}?
     try self.handler.receiveMessage() {(requestData) in
       if let requestData = requestData {
         do {
-          requestMessage = try {{ method|input }}(protobuf:requestData)
+          requestMessage = try {{ method.input|protoMessageType }}(protobuf:requestData)
         } catch (let error) {
           print("error \(error)")
         }
@@ -26,12 +26,12 @@ public class {{ .|session:protoFile,service,method }} : {{ .|service:protoFile,s
     if let requestMessage = requestMessage {
       return requestMessage
     } else {
-      throw {{ .|servererror:protoFile,service }}.endOfStream
+      throw {{ .|servererror:protoFile.package,service.name }}.endOfStream
     }
   }
 
   /// Send a message. Nonblocking.
-  public func send(_ response: {{ method|output }}) throws {
+  public func send(_ response: {{ method.output|protoMessageType }}) throws {
     try handler.sendResponse(message:response.serializeProtobuf()) {}
   }
 

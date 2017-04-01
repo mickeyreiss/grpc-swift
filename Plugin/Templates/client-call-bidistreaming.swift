@@ -1,23 +1,23 @@
 /// {{ method.name }} (Bidirectional Streaming)
-public class {{ .|call:protoFile,service,method }} {
+public class {{ .|call:protoFile.package,service.name,method.name }} {
   private var call : Call
 
   /// Create a call.
   fileprivate init(_ channel: Channel) {
-    self.call = channel.makeCall("{{ .|path:protoFile,service,method }}")
+    self.call = channel.makeCall("{{ .|path:protoFile.package,service.name,method.name }}")
   }
 
   /// Call this to start a call. Nonblocking.
   fileprivate func start(metadata:Metadata, completion:@escaping (CallResult)->())
-    throws -> {{ .|call:protoFile,service,method }} {
+    throws -> {{ .|call:protoFile.package,service.name,method.name}} {
       try self.call.start(.bidiStreaming, metadata:metadata, completion:completion)
       return self
   }
 
   /// Call this to wait for a result. Blocking.
-  public func receive() throws -> {{ method|output }} {
-    var returnError : {{ .|clienterror:protoFile,service }}?
-    var returnMessage : {{ method|output }}!
+  public func receive() throws -> {{ method.output|protoMessageType }} {
+    var returnError : {{ .|clienterror:protoFile.package,service.name }}?
+    var returnMessage : {{ method.output|protoMessageType }}!
     let sem = DispatchSemaphore(value: 0)
     do {
       try receive() {response, error in
@@ -34,17 +34,17 @@ public class {{ .|call:protoFile,service,method }} {
   }
 
   /// Call this to wait for a result. Nonblocking.
-  public func receive(completion:@escaping ({{ method|output }}?, {{ .|clienterror:protoFile,service }}?)->()) throws {
+  public func receive(completion:@escaping ({{ method.output|protoMessageType }}?, {{ .|clienterror:protoFile.package,service.name }}?)->()) throws {
     do {
       try call.receiveMessage() {(data) in
         if let data = data {
-          if let returnMessage = try? {{ method|output }}(protobuf:data) {
+          if let returnMessage = try? {{ method.output|protoMessageType }}(protobuf:data) {
             completion(returnMessage, nil)
           } else {
-            completion(nil, {{ .|clienterror:protoFile,service }}.invalidMessageReceived)
+            completion(nil, {{ .|clienterror:protoFile.package,service.name }}.invalidMessageReceived)
           }
         } else {
-          completion(nil, {{ .|clienterror:protoFile,service }}.endOfStream)
+          completion(nil, {{ .|clienterror:protoFile.package,service.name }}.endOfStream)
         }
       }
     }
