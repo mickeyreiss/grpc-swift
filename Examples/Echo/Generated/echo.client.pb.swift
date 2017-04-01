@@ -44,14 +44,14 @@ import Dispatch
 import gRPC
 
 /// Type for errors thrown from generated client code.
-public enum Echo_EchoClientError : Error {
+enum Echo_EchoClientError : Error {
   case endOfStream
   case invalidMessageReceived
   case error(c: CallResult)
 }
 
 /// Get (Unary)
-public class Echo_EchoGetCall {
+class Echo_EchoGetCall {
   private var call : Call
 
   /// Create a call.
@@ -101,7 +101,7 @@ public class Echo_EchoGetCall {
 }
 
 /// Expand (Server Streaming)
-public class Echo_EchoExpandCall {
+class Echo_EchoExpandCall {
   private var call : Call
 
   /// Create a call.
@@ -123,7 +123,7 @@ public class Echo_EchoExpandCall {
   }
 
   /// Call this to wait for a result. Blocking.
-  public func receive() throws -> Echo_EchoResponse {
+  func receive() throws -> Echo_EchoResponse {
     var returnError : Echo_EchoClientError?
     var returnResponse : Echo_EchoResponse!
     let sem = DispatchSemaphore(value: 0)
@@ -142,7 +142,7 @@ public class Echo_EchoExpandCall {
   }
 
   /// Call this to wait for a result. Nonblocking.
-  public func receive(completion:@escaping (Echo_EchoResponse?, Echo_EchoClientError?)->()) throws {
+  func receive(completion:@escaping (Echo_EchoResponse?, Echo_EchoClientError?)->()) throws {
     do {
       try call.receiveMessage() {(responseData) in
         if let responseData = responseData {
@@ -160,7 +160,7 @@ public class Echo_EchoExpandCall {
 }
 
 /// Collect (Client Streaming)
-public class Echo_EchoCollectCall {
+class Echo_EchoCollectCall {
   private var call : Call
 
   /// Create a call.
@@ -176,13 +176,13 @@ public class Echo_EchoCollectCall {
   }
 
   /// Call this to send each message in the request stream. Nonblocking.
-  public func send(_ message:Echo_EchoRequest, errorHandler:@escaping (Error)->()) throws {
+  func send(_ message:Echo_EchoRequest, errorHandler:@escaping (Error)->()) throws {
     let messageData = try message.serializedData()
     try call.sendMessage(data:messageData, errorHandler:errorHandler)
   }
 
   /// Call this to close the connection and wait for a response. Blocking.
-  public func closeAndReceive() throws -> Echo_EchoResponse {
+  func closeAndReceive() throws -> Echo_EchoResponse {
     var returnError : Echo_EchoClientError?
     var returnResponse : Echo_EchoResponse!
     let sem = DispatchSemaphore(value: 0)
@@ -203,7 +203,7 @@ public class Echo_EchoCollectCall {
   }
 
   /// Call this to close the connection and wait for a response. Nonblocking.
-  public func closeAndReceive(completion:@escaping (Echo_EchoResponse?, Echo_EchoClientError?)->())
+  func closeAndReceive(completion:@escaping (Echo_EchoResponse?, Echo_EchoClientError?)->())
     throws {
       do {
         try call.receiveMessage() {(responseData) in
@@ -222,7 +222,7 @@ public class Echo_EchoCollectCall {
 }
 
 /// Update (Bidirectional Streaming)
-public class Echo_EchoUpdateCall {
+class Echo_EchoUpdateCall {
   private var call : Call
 
   /// Create a call.
@@ -238,7 +238,7 @@ public class Echo_EchoUpdateCall {
   }
 
   /// Call this to wait for a result. Blocking.
-  public func receive() throws -> Echo_EchoResponse {
+  func receive() throws -> Echo_EchoResponse {
     var returnError : Echo_EchoClientError?
     var returnMessage : Echo_EchoResponse!
     let sem = DispatchSemaphore(value: 0)
@@ -257,7 +257,7 @@ public class Echo_EchoUpdateCall {
   }
 
   /// Call this to wait for a result. Nonblocking.
-  public func receive(completion:@escaping (Echo_EchoResponse?, Echo_EchoClientError?)->()) throws {
+  func receive(completion:@escaping (Echo_EchoResponse?, Echo_EchoClientError?)->()) throws {
     do {
       try call.receiveMessage() {(data) in
         if let data = data {
@@ -274,13 +274,13 @@ public class Echo_EchoUpdateCall {
   }
 
   /// Call this to send each message in the request stream.
-  public func send(_ message:Echo_EchoRequest, errorHandler:@escaping (Error)->()) throws {
+  func send(_ message:Echo_EchoRequest, errorHandler:@escaping (Error)->()) throws {
     let messageData = try message.serializedData()
     try call.sendMessage(data:messageData, errorHandler:errorHandler)
   }
 
   /// Call this to close the sending connection. Blocking.
-  public func closeSend() throws {
+  func closeSend() throws {
     let sem = DispatchSemaphore(value: 0)
     try closeSend() {
       sem.signal()
@@ -289,7 +289,7 @@ public class Echo_EchoUpdateCall {
   }
 
   /// Call this to close the sending connection. Nonblocking.
-  public func closeSend(completion:@escaping ()->()) throws {
+  func closeSend(completion:@escaping ()->()) throws {
     try call.close() {
       completion()
     }
@@ -297,16 +297,16 @@ public class Echo_EchoUpdateCall {
 }
 
 /// Call methods of this class to make API calls.
-public class Echo_EchoService {
+class Echo_EchoService {
   private var channel: Channel
 
   /// This metadata will be sent with all requests.
-  public var metadata : Metadata
+  var metadata : Metadata
 
   /// This property allows the service host name to be overridden.
   /// For example, it can be used to make calls to "localhost:8080"
   /// appear to be to "example.com".
-  public var host : String {
+  var host : String {
     get {
       return self.channel.host
     }
@@ -316,14 +316,14 @@ public class Echo_EchoService {
   }
 
   /// Create a client that makes insecure connections.
-  public init(address: String) {
+  init(address: String) {
     gRPC.initialize()
     channel = Channel(address:address)
     metadata = Metadata()
   }
 
   /// Create a client that makes secure connections.
-  public init(address: String, certificates: String?, host: String?) {
+  init(address: String, certificates: String?, host: String?) {
     gRPC.initialize()
     channel = Channel(address:address, certificates:certificates, host:host)
     metadata = Metadata()

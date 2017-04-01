@@ -37,7 +37,9 @@ class EchoProvider : Echo_EchoProvider {
 
   // get returns requests as they were received.
   func get(request : Echo_EchoRequest, session : Echo_EchoGetSession) throws -> Echo_EchoResponse {
-    return Echo_EchoResponse(text:"Swift echo get: " + request.text)
+    return Echo_EchoResponse.with {
+      $0.text = "Swift echo get: " + request.text
+    }
   }
 
   // expand splits a request into words and returns each word in a separate message.
@@ -45,7 +47,9 @@ class EchoProvider : Echo_EchoProvider {
     let parts = request.text.components(separatedBy: " ")
     var i = 0
     for part in parts {
-      try session.send(Echo_EchoResponse(text:"Swift echo expand (\(i)): \(part)"))
+      try session.send(Echo_EchoResponse.with { 
+        $0.text = "Swift echo expand (\(i)): \(part)"
+      })
       i += 1
       sleep(1)
     }
@@ -64,7 +68,9 @@ class EchoProvider : Echo_EchoProvider {
         print("\(error)")
       }
     }
-    let response = Echo_EchoResponse(text:"Swift echo collect: " + parts.joined(separator: " "))
+    let response = Echo_EchoResponse.with {
+      $0.text = "Swift echo collect: " + parts.joined(separator: " ")
+    }
     try session.sendAndClose(response)
   }
 
@@ -75,7 +81,9 @@ class EchoProvider : Echo_EchoProvider {
       do {
         let request = try session.receive()
         count += 1
-        try session.send(Echo_EchoResponse(text:"Swift echo update (\(count)): \(request.text)"))
+        try session.send(Echo_EchoResponse.with {
+          $0.text = "Swift echo update (\(count)): \(request.text)"
+        })
       } catch Echo_EchoServerError.endOfStream {
         break
       } catch (let error) {
